@@ -87,4 +87,4 @@ Now, usually Google Optimize tag loads fast, but you cannot always rely on exter
 
 This means that, even if your server has responded in 150 milliseconds, your user won't be able to see anything in the page until the 4 seconds have expired.
 
-**Are you sure you want to risk this? With RubyOptimize you can set up a simple A/B test easily and cleanly directly in the code, this means that you can get rid of the hide-page tag, and let Google Optimize focus only on data collection.**
+Are you sure you want to risk this? With RubyOptimize you can set up a simple A/B test easily and cleanly directly in the code, this means that you can get rid of the hide-page tag, and let Google Optimize focus only on data collection.
