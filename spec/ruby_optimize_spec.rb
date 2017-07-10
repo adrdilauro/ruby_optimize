@@ -1,11 +1,11 @@
 require 'rails_helper'
 
-RSpec.describe RubyOptimize, type: :model do
+RSpec.describe AbTestHandler, type: :model do
   def ruby_optimize(versions, **params)
     @ruby_optimize = {} if @ruby_optimize.nil?
     scope = params[:scope] || :default
     raise "RubyOptimize - scope already defined: #{scope.inspect}" if @ruby_optimize.has_key?(scope)
-    @ruby_optimize[scope] = RubyOptimize.new(versions, scope, request.user_agent, params[:cookie_expiration], params[:version_for_crawler])
+    @ruby_optimize[scope] = AbTestHandler.new(versions, scope, request.user_agent, params[:cookie_expiration], params[:version_for_crawler])
   end
 
   def ruby_optimize_init(scope=:default)
