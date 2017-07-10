@@ -12,7 +12,7 @@ Gem::Specification.new do |s|
   s.summary     = 'Tool to implement flexible A/B tests in Ruby on Rails'
   s.description = 'With ruby_optimize you can set up multiple A/B tests, consistent across session, in a clean way and without page flickering'
 
-  s.files = Dir['lib/*.rb']
+  s.files = Dir['lib/*.rb'] + Dir['lib/controllers/*.rb'] + Dir['lib/helpers/*.rb']
 
   s.licenses = ['MIT']
 
