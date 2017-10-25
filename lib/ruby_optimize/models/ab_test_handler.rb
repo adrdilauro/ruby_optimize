@@ -27,7 +27,7 @@ module RubyOptimize
         @version = versions.sample
         cookies[cookie_name] = {
           value: version,
-          expires: cookie_expiration || 180.days,
+          expires: (cookie_expiration || 180.days).from_now,
           domain: domain || :all,
         }
       end
