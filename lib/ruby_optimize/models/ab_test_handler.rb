@@ -12,11 +12,13 @@ module RubyOptimize
       'y!j-asr', 'AddThis'
     ].join('|')}/i
 
-    def initialize(cookies, some_versions, scope, agent, domain=nil, cookie_expiration=nil, a_version_for_crawler=nil)
+    def initialize(cookies, some_versions, scope, agent, domain=nil, a_cookie_expiration=nil, a_version_for_crawler=nil)
       @versions = some_versions
       validate_versions
       validate_scope(scope)
-      cookie_name = :"ruby-optimize-cookie-#{scope}"
+      @cookie_expiration = (a_cookie_expiration || 180.days).to_i
+      validate_cookie_expiration
+      @cookie_name = "ruby-optimize-cookie-#{scope}"
       @is_crawler = !CRAWLER.match(agent).nil?
       @version_for_crawler = a_version_for_crawler
       validate_version_for_crawler
@@ -27,7 +29,7 @@ module RubyOptimize
         @version = versions.sample
         cookies[cookie_name] = {
           value: version,
-          expires: (cookie_expiration || 180.days).from_now,
+          expires: cookie_expiration.from_now,
           domain: domain || :all,
         }
       end
@@ -53,6 +55,10 @@ module RubyOptimize
       end
     end
 
+    def validate_cookie_expiration
+      raise "RubyOptimize - cookie_expiration needs to be an integer greater than zero: #{cookie_expiration.inspect}" if cookie_expiration <= 0
+    end
+
     def validate_scope(scope)
       raise "RubyOptimize - scope needs to be an alphanumeric symbol: #{scope.inspect}" if !scope.is_a?(Symbol) || ALPHANUMERIC_STRING.match(scope.to_s).nil?
     end
@@ -61,6 +67,6 @@ module RubyOptimize
       raise "RubyOptimize - version_for_crawler must be one of the available versions: #{version_for_crawler.inspect}" if !version_for_crawler.nil? && !versions.include?(version_for_crawler)
     end
 
-    attr_reader :version_for_crawler, :version, :is_crawler, :versions
+    attr_reader :cookie_expiration, :cookie_name, :version_for_crawler, :version, :is_crawler, :versions
   end
 end

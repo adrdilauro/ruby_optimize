@@ -5,13 +5,7 @@ RSpec.describe AbTestHandler, type: :model do
     @ruby_optimize = {} if @ruby_optimize.nil?
     scope = params[:scope] || :default
     raise "RubyOptimize - scope already defined: #{scope.inspect}" if @ruby_optimize.has_key?(scope)
-    @ruby_optimize[scope] = AbTestHandler.new(versions, scope, request.user_agent, params[:cookie_expiration], params[:version_for_crawler])
-  end
-
-  def ruby_optimize_init(scope=:default)
-    raise "RubyOptimize - A/B test not initialized" if @ruby_optimize.nil?
-    raise "RubyOptimize - scope not found: #{scope.inspect}" if !@ruby_optimize.has_key?(scope)
-    @ruby_optimize[scope].init_script
+    @ruby_optimize[scope] = AbTestHandler.new({}, versions, scope, request.user_agent, params[:domain], params[:cookie_expiration], params[:version_for_crawler])
   end
 
   def ruby_optimize_wrap(*version_and_scope, **params, &block)
@@ -23,196 +17,6 @@ RSpec.describe AbTestHandler, type: :model do
 
   def fake_wrapped(version, random_div_id, js_object_id)
     "      <div id=\"#{random_div_id}\">\n        hello\n      </div>\n      <script>\n        window['#{js_object_id}'].handle('#{version}', '#{random_div_id}');\n      </script>\n"
-  end
-
-  let(:init_script_default) do
-     <<-HTML
-      <script>
-        function xxxxxxxxxxxx(random) {
-          var n = 'ruby-optimize-cookie-default=', ca, v = undefined, c;
-          ca = document.cookie.split(';');
-          for (var i = 0; i < ca.length; i++) {
-            c = ca[i];
-            while (c.charAt(0) === ' ') {
-              c = c.substring(1, c.length);
-            }
-            if (c.indexOf(n) === 0) {
-              v = c.substring(n.length, c.length);
-            }
-          }
-          if (v === undefined) {
-            v = random;
-            var d = new Date();
-            d.setTime(d.getTime() + (15552000 * 1000));
-            document.cookie = 'ruby-optimize-cookie-default=' + v + '; expires=' + d.toGMTString() + '; path=/';
-          }
-
-          this.handle = function(version, id) {
-            if (version === v) return;
-            var el = document.getElementById(id);
-            el.parentNode.removeChild(el);
-          };
-        };
-
-        window['yyyyyyyyyyyy'] = new xxxxxxxxxxxx('zzzzzzzzzzzz');
-
-        window.clearRubyOptimizeCookieDefault = function() {
-          document.cookie = 'ruby-optimize-cookie-default=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-        };
-      </script>
-    HTML
-  end
-
-  let(:init_script_test) do
-     <<-HTML
-      <script>
-        function xxxxxxxxxxxx(random) {
-          var n = 'ruby-optimize-cookie-test=', ca, v = undefined, c;
-          ca = document.cookie.split(';');
-          for (var i = 0; i < ca.length; i++) {
-            c = ca[i];
-            while (c.charAt(0) === ' ') {
-              c = c.substring(1, c.length);
-            }
-            if (c.indexOf(n) === 0) {
-              v = c.substring(n.length, c.length);
-            }
-          }
-          if (v === undefined) {
-            v = random;
-            var d = new Date();
-            d.setTime(d.getTime() + (15552000 * 1000));
-            document.cookie = 'ruby-optimize-cookie-test=' + v + '; expires=' + d.toGMTString() + '; path=/';
-          }
-
-          this.handle = function(version, id) {
-            if (version === v) return;
-            var el = document.getElementById(id);
-            el.parentNode.removeChild(el);
-          };
-        };
-
-        window['yyyyyyyyyyyy'] = new xxxxxxxxxxxx('zzzzzzzzzzzz');
-
-        window.clearRubyOptimizeCookieTest = function() {
-          document.cookie = 'ruby-optimize-cookie-test=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-        };
-      </script>
-    HTML
-  end
-
-  let(:init_script_test2) do
-     <<-HTML
-      <script>
-        function xxxxxxxxxxxx(random) {
-          var n = 'ruby-optimize-cookie-test2=', ca, v = undefined, c;
-          ca = document.cookie.split(';');
-          for (var i = 0; i < ca.length; i++) {
-            c = ca[i];
-            while (c.charAt(0) === ' ') {
-              c = c.substring(1, c.length);
-            }
-            if (c.indexOf(n) === 0) {
-              v = c.substring(n.length, c.length);
-            }
-          }
-          if (v === undefined) {
-            v = random;
-            var d = new Date();
-            d.setTime(d.getTime() + (15552000 * 1000));
-            document.cookie = 'ruby-optimize-cookie-test2=' + v + '; expires=' + d.toGMTString() + '; path=/';
-          }
-
-          this.handle = function(version, id) {
-            if (version === v) return;
-            var el = document.getElementById(id);
-            el.parentNode.removeChild(el);
-          };
-        };
-
-        window['yyyyyyyyyyyy'] = new xxxxxxxxxxxx('zzzzzzzzzzzz');
-
-        window.clearRubyOptimizeCookieTest2 = function() {
-          document.cookie = 'ruby-optimize-cookie-test2=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-        };
-      </script>
-    HTML
-  end
-
-  let(:init_script_test3) do
-     <<-HTML
-      <script>
-        function xxxxxxxxxxxx(random) {
-          var n = 'ruby-optimize-cookie-test3=', ca, v = undefined, c;
-          ca = document.cookie.split(';');
-          for (var i = 0; i < ca.length; i++) {
-            c = ca[i];
-            while (c.charAt(0) === ' ') {
-              c = c.substring(1, c.length);
-            }
-            if (c.indexOf(n) === 0) {
-              v = c.substring(n.length, c.length);
-            }
-          }
-          if (v === undefined) {
-            v = random;
-            var d = new Date();
-            d.setTime(d.getTime() + (33 * 1000));
-            document.cookie = 'ruby-optimize-cookie-test3=' + v + '; expires=' + d.toGMTString() + '; path=/';
-          }
-
-          this.handle = function(version, id) {
-            if (version === v) return;
-            var el = document.getElementById(id);
-            el.parentNode.removeChild(el);
-          };
-        };
-
-        window['yyyyyyyyyyyy'] = new xxxxxxxxxxxx('zzzzzzzzzzzz');
-
-        window.clearRubyOptimizeCookieTest3 = function() {
-          document.cookie = 'ruby-optimize-cookie-test3=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-        };
-      </script>
-    HTML
-  end
-
-  let(:init_script_test4) do
-     <<-HTML
-      <script>
-        function xxxxxxxxxxxx(random) {
-          var n = 'ruby-optimize-cookie-test4=', ca, v = undefined, c;
-          ca = document.cookie.split(';');
-          for (var i = 0; i < ca.length; i++) {
-            c = ca[i];
-            while (c.charAt(0) === ' ') {
-              c = c.substring(1, c.length);
-            }
-            if (c.indexOf(n) === 0) {
-              v = c.substring(n.length, c.length);
-            }
-          }
-          if (v === undefined) {
-            v = random;
-            var d = new Date();
-            d.setTime(d.getTime() + (15552000 * 1000));
-            document.cookie = 'ruby-optimize-cookie-test4=' + v + '; expires=' + d.toGMTString() + '; path=/';
-          }
-
-          this.handle = function(version, id) {
-            if (version === v) return;
-            var el = document.getElementById(id);
-            el.parentNode.removeChild(el);
-          };
-        };
-
-        window['yyyyyyyyyyyy'] = new xxxxxxxxxxxx('zzzzzzzzzzzz');
-
-        window.clearRubyOptimizeCookieTest4 = function() {
-          document.cookie = 'ruby-optimize-cookie-test4=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-        };
-      </script>
-    HTML
   end
 
   describe 'create' do
@@ -347,12 +151,6 @@ RSpec.describe AbTestHandler, type: :model do
 
       it 'raises an error if you try using the object without having initialized it previously' do
         expect do
-          ruby_optimize_init
-        end.to raise_error('RubyOptimize - A/B test not initialized')
-        expect do
-          ruby_optimize_init(:somescope)
-        end.to raise_error('RubyOptimize - A/B test not initialized')
-        expect do
           ruby_optimize_wrap(:v1) do
             'hello'
           end
@@ -377,10 +175,6 @@ RSpec.describe AbTestHandler, type: :model do
         expect(@ruby_optimize.keys.sort[2]).to eq(:test2)
         expect(@ruby_optimize.keys.sort[3]).to eq(:test3)
         expect(@ruby_optimize.keys.sort[4]).to eq(:test4)
-        # INIT SCRIPT GENERIC
-        expect do
-          ruby_optimize_init(:anotherscope)
-        end.to raise_error('RubyOptimize - scope not found: :anotherscope')
         # WRAP GENERIC
         expect do
           ruby_optimize_wrap(:v1, :anotherscope) do
@@ -393,6 +187,9 @@ RSpec.describe AbTestHandler, type: :model do
           end
         end.to raise_error('RubyOptimize - for_crawler must be a boolean: "true"')
         # DEFAULT SET UP
+        def (@ruby_optimize[:default]).set_version(a_version)
+          @version = a_version
+        end
         def (@ruby_optimize[:default]).get_cookie_expiration
           cookie_expiration
         end
@@ -405,9 +202,6 @@ RSpec.describe AbTestHandler, type: :model do
         def (@ruby_optimize[:default]).get_is_crawler
           is_crawler
         end
-        def (@ruby_optimize[:default]).get_js_object_id
-          js_object_id
-        end
         def (@ruby_optimize[:default]).get_versions
           versions
         end
@@ -416,16 +210,6 @@ RSpec.describe AbTestHandler, type: :model do
         expect(@ruby_optimize[:default].get_version_for_crawler).to eq(nil)
         expect(@ruby_optimize[:default].get_is_crawler).to eq(false)
         expect(@ruby_optimize[:default].get_versions.sort).to eq([:v1, :v2, :v3])
-        # DEFAULT INIT SCRIPT
-        js_object_id = @ruby_optimize[:default].get_js_object_id
-        js_object_id_for_class_name = "RubyOptimize#{js_object_id.gsub('-', '')}"
-        isd = ruby_optimize_init
-        expect(isd).to eq(ruby_optimize_init(:default))
-        sampled_version = isd.scan(/#{js_object_id_for_class_name}\(\'[a-z0-9]+\'/).first.split("'").last
-        processed_init_script_default = init_script_default.gsub('xxxxxxxxxxxx', js_object_id_for_class_name)
-        processed_init_script_default.gsub!('yyyyyyyyyyyy', js_object_id)
-        processed_init_script_default.gsub!('zzzzzzzzzzzz', sampled_version)
-        expect(@ruby_optimize[:default].init_script).to eq(processed_init_script_default)
         # DEFAULT WRAP
         expect do
           ruby_optimize_wrap(:new) do
@@ -435,30 +219,45 @@ RSpec.describe AbTestHandler, type: :model do
         expect(ruby_optimize_wrap do
           'hello'
         end).to eq('')
-        wrapped = ruby_optimize_wrap(:v1) do
+        @ruby_optimize[:default].set_version(:v1)
+        expect(ruby_optimize_wrap(:v1) do
           'hello'
-        end
-        random_div_id = wrapped.scan(/div id=\"[a-z0-9\-]+\"/).first.split('"').last
-        expect(wrapped).to eq(fake_wrapped('v1', random_div_id, js_object_id))
-        wrapped = ruby_optimize_wrap(:v2, :default) do
+        end).to eq('hello')
+        @ruby_optimize[:default].set_version(:other)
+        expect(ruby_optimize_wrap(:v1) do
           'hello'
-        end
-        random_div_id = wrapped.scan(/div id=\"[a-z0-9\-]+\"/).first.split('"').last
-        expect(wrapped).to eq(fake_wrapped('v2', random_div_id, js_object_id))
-        wrapped = ruby_optimize_wrap(:v3, :default, version_for_crawler: true) do
+        end).to eq('')
+        @ruby_optimize[:default].set_version(:v2)
+        expect(ruby_optimize_wrap(:v2, :default) do
           'hello'
-        end
-        random_div_id = wrapped.scan(/div id=\"[a-z0-9\-]+\"/).first.split('"').last
-        expect(wrapped).to eq(fake_wrapped('v3', random_div_id, js_object_id))
-        wrapped = ruby_optimize_wrap(:v1, version_for_crawler: true) do
+        end).to eq('hello')
+        @ruby_optimize[:default].set_version(:other)
+        expect(ruby_optimize_wrap(:v2, :default) do
           'hello'
-        end
-        random_div_id = wrapped.scan(/div id=\"[a-z0-9\-]+\"/).first.split('"').last
-        expect(wrapped).to eq(fake_wrapped('v1', random_div_id, js_object_id))
+        end).to eq('')
+        @ruby_optimize[:default].set_version(:v3)
+        expect(ruby_optimize_wrap(:v3, :default, version_for_crawler: true) do
+          'hello'
+        end).to eq('hello')
+        @ruby_optimize[:default].set_version(:other)
+        expect(ruby_optimize_wrap(:v3, :default, version_for_crawler: true) do
+          'hello'
+        end).to eq('')
+        @ruby_optimize[:default].set_version(:v1)
+        expect(ruby_optimize_wrap(:v1, version_for_crawler: true) do
+          'hello'
+        end).to eq('hello')
+        @ruby_optimize[:default].set_version(:other)
+        expect(ruby_optimize_wrap(:v1, version_for_crawler: true) do
+          'hello'
+        end).to eq('')
         expect(ruby_optimize_wrap(version_for_crawler: true) do
           'hello'
         end).to eq('')
         # TEST SET UP
+        def (@ruby_optimize[:test]).set_version(a_version)
+          @version = a_version
+        end
         def (@ruby_optimize[:test]).get_cookie_expiration
           cookie_expiration
         end
@@ -471,9 +270,6 @@ RSpec.describe AbTestHandler, type: :model do
         def (@ruby_optimize[:test]).get_is_crawler
           is_crawler
         end
-        def (@ruby_optimize[:test]).get_js_object_id
-          js_object_id
-        end
         def (@ruby_optimize[:test]).get_versions
           versions
         end
@@ -482,31 +278,32 @@ RSpec.describe AbTestHandler, type: :model do
         expect(@ruby_optimize[:test].get_version_for_crawler).to eq(nil)
         expect(@ruby_optimize[:test].get_is_crawler).to eq(false)
         expect(@ruby_optimize[:test].get_versions.sort).to eq([:new, :old])
-        # TEST INIT SCRIPT
-        js_object_id = @ruby_optimize[:test].get_js_object_id
-        js_object_id_for_class_name = "RubyOptimize#{js_object_id.gsub('-', '')}"
-        sampled_version = ruby_optimize_init(:test).scan(/#{js_object_id_for_class_name}\(\'[a-z0-9]+\'/).first.split("'").last
-        processed_init_script_test = init_script_test.gsub('xxxxxxxxxxxx', js_object_id_for_class_name)
-        processed_init_script_test.gsub!('yyyyyyyyyyyy', js_object_id)
-        processed_init_script_test.gsub!('zzzzzzzzzzzz', sampled_version)
-        expect(@ruby_optimize[:test].init_script).to eq(processed_init_script_test)
         # TEST WRAP
         expect do
           ruby_optimize_wrap(:v444, :test) do
             'hello'
           end
         end.to raise_error('RubyOptimize - version must be one of the available versions: :v444')
-        wrapped = ruby_optimize_wrap(:old, :test) do
+        @ruby_optimize[:test].set_version(:old)
+        expect(ruby_optimize_wrap(:old, :test) do
           'hello'
-        end
-        random_div_id = wrapped.scan(/div id=\"[a-z0-9\-]+\"/).first.split('"').last
-        expect(wrapped).to eq(fake_wrapped('old', random_div_id, js_object_id))
-        wrapped = ruby_optimize_wrap(:new, :test, version_for_crawler: true) do
+        end).to eq('hello')
+        @ruby_optimize[:test].set_version(:other)
+        expect(ruby_optimize_wrap(:old, :test) do
           'hello'
-        end
-        random_div_id = wrapped.scan(/div id=\"[a-z0-9\-]+\"/).first.split('"').last
-        expect(wrapped).to eq(fake_wrapped('new', random_div_id, js_object_id))
+        end).to eq('')
+        @ruby_optimize[:test].set_version(:new)
+        expect(ruby_optimize_wrap(:new, :test, version_for_crawler: true) do
+          'hello'
+        end).to eq('hello')
+        @ruby_optimize[:test].set_version(:other)
+        expect(ruby_optimize_wrap(:new, :test, version_for_crawler: true) do
+          'hello'
+        end).to eq('')
         # TEST2 SET UP
+        def (@ruby_optimize[:test2]).set_version(a_version)
+          @version = a_version
+        end
         def (@ruby_optimize[:test2]).get_cookie_expiration
           cookie_expiration
         end
@@ -519,9 +316,6 @@ RSpec.describe AbTestHandler, type: :model do
         def (@ruby_optimize[:test2]).get_is_crawler
           is_crawler
         end
-        def (@ruby_optimize[:test2]).get_js_object_id
-          js_object_id
-        end
         def (@ruby_optimize[:test2]).get_versions
           versions
         end
@@ -530,31 +324,32 @@ RSpec.describe AbTestHandler, type: :model do
         expect(@ruby_optimize[:test2].get_version_for_crawler).to eq(nil)
         expect(@ruby_optimize[:test2].get_is_crawler).to eq(false)
         expect(@ruby_optimize[:test2].get_versions.sort).to eq([:new, :old])
-        # TEST2 INIT SCRIPT
-        js_object_id = @ruby_optimize[:test2].get_js_object_id
-        js_object_id_for_class_name = "RubyOptimize#{js_object_id.gsub('-', '')}"
-        sampled_version = ruby_optimize_init(:test2).scan(/#{js_object_id_for_class_name}\(\'[a-z0-9]+\'/).first.split("'").last
-        processed_init_script_test2 = init_script_test2.gsub('xxxxxxxxxxxx', js_object_id_for_class_name)
-        processed_init_script_test2.gsub!('yyyyyyyyyyyy', js_object_id)
-        processed_init_script_test2.gsub!('zzzzzzzzzzzz', sampled_version)
-        expect(@ruby_optimize[:test2].init_script).to eq(processed_init_script_test2)
         # TEST2 WRAP
         expect do
           ruby_optimize_wrap(:v444, :test2) do
             'hello'
           end
         end.to raise_error('RubyOptimize - version must be one of the available versions: :v444')
-        wrapped = ruby_optimize_wrap(:old, :test2) do
+        @ruby_optimize[:test2].set_version(:old)
+        expect(ruby_optimize_wrap(:old, :test2) do
           'hello'
-        end
-        random_div_id = wrapped.scan(/div id=\"[a-z0-9\-]+\"/).first.split('"').last
-        expect(wrapped).to eq(fake_wrapped('old', random_div_id, js_object_id))
-        wrapped = ruby_optimize_wrap(:new, :test2, version_for_crawler: true) do
+        end).to eq('hello')
+        @ruby_optimize[:test2].set_version(:other)
+        expect(ruby_optimize_wrap(:old, :test2) do
           'hello'
-        end
-        random_div_id = wrapped.scan(/div id=\"[a-z0-9\-]+\"/).first.split('"').last
-        expect(wrapped).to eq(fake_wrapped('new', random_div_id, js_object_id))
+        end).to eq('')
+        @ruby_optimize[:test2].set_version(:new)
+        expect(ruby_optimize_wrap(:new, :test2, version_for_crawler: true) do
+          'hello'
+        end).to eq('hello')
+        @ruby_optimize[:test2].set_version(:other)
+        expect(ruby_optimize_wrap(:new, :test2, version_for_crawler: true) do
+          'hello'
+        end).to eq('')
         # TEST3 SET UP
+        def (@ruby_optimize[:test3]).set_version(a_version)
+          @version = a_version
+        end
         def (@ruby_optimize[:test3]).get_cookie_expiration
           cookie_expiration
         end
@@ -567,9 +362,6 @@ RSpec.describe AbTestHandler, type: :model do
         def (@ruby_optimize[:test3]).get_is_crawler
           is_crawler
         end
-        def (@ruby_optimize[:test3]).get_js_object_id
-          js_object_id
-        end
         def (@ruby_optimize[:test3]).get_versions
           versions
         end
@@ -578,31 +370,32 @@ RSpec.describe AbTestHandler, type: :model do
         expect(@ruby_optimize[:test3].get_version_for_crawler).to eq(nil)
         expect(@ruby_optimize[:test3].get_is_crawler).to eq(false)
         expect(@ruby_optimize[:test3].get_versions.sort).to eq([:v4, :v5])
-        # TEST3 INIT SCRIPT
-        js_object_id = @ruby_optimize[:test3].get_js_object_id
-        js_object_id_for_class_name = "RubyOptimize#{js_object_id.gsub('-', '')}"
-        sampled_version = ruby_optimize_init(:test3).scan(/#{js_object_id_for_class_name}\(\'[a-z0-9]+\'/).first.split("'").last
-        processed_init_script_test3 = init_script_test3.gsub('xxxxxxxxxxxx', js_object_id_for_class_name)
-        processed_init_script_test3.gsub!('yyyyyyyyyyyy', js_object_id)
-        processed_init_script_test3.gsub!('zzzzzzzzzzzz', sampled_version)
-        expect(@ruby_optimize[:test3].init_script).to eq(processed_init_script_test3)
         # TEST3 WRAP
         expect do
           ruby_optimize_wrap(:v444, :test3) do
             'hello'
           end
         end.to raise_error('RubyOptimize - version must be one of the available versions: :v444')
-        wrapped = ruby_optimize_wrap(:v4, :test3) do
+        @ruby_optimize[:test3].set_version(:v4)
+        expect(ruby_optimize_wrap(:v4, :test3) do
           'hello'
-        end
-        random_div_id = wrapped.scan(/div id=\"[a-z0-9\-]+\"/).first.split('"').last
-        expect(wrapped).to eq(fake_wrapped('v4', random_div_id, js_object_id))
-        wrapped = ruby_optimize_wrap(:v5, :test3, version_for_crawler: true) do
+        end).to eq('hello')
+        @ruby_optimize[:test3].set_version(:other)
+        expect(ruby_optimize_wrap(:v4, :test3) do
           'hello'
-        end
-        random_div_id = wrapped.scan(/div id=\"[a-z0-9\-]+\"/).first.split('"').last
-        expect(wrapped).to eq(fake_wrapped('v5', random_div_id, js_object_id))
+        end).to eq('')
+        @ruby_optimize[:test3].set_version(:v5)
+        expect(ruby_optimize_wrap(:v5, :test3, version_for_crawler: true) do
+          'hello'
+        end).to eq('hello')
+        @ruby_optimize[:test3].set_version(:other)
+        expect(ruby_optimize_wrap(:v5, :test3, version_for_crawler: true) do
+          'hello'
+        end).to eq('')
         # TEST4 SET UP
+        def (@ruby_optimize[:test4]).set_version(a_version)
+          @version = a_version
+        end
         def (@ruby_optimize[:test4]).get_cookie_expiration
           cookie_expiration
         end
@@ -615,9 +408,6 @@ RSpec.describe AbTestHandler, type: :model do
         def (@ruby_optimize[:test4]).get_is_crawler
           is_crawler
         end
-        def (@ruby_optimize[:test4]).get_js_object_id
-          js_object_id
-        end
         def (@ruby_optimize[:test4]).get_versions
           versions
         end
@@ -626,30 +416,28 @@ RSpec.describe AbTestHandler, type: :model do
         expect(@ruby_optimize[:test4].get_version_for_crawler).to eq(:v5)
         expect(@ruby_optimize[:test4].get_is_crawler).to eq(false)
         expect(@ruby_optimize[:test4].get_versions.sort).to eq([:v4, :v5])
-        # TEST4 INIT SCRIPT
-        js_object_id = @ruby_optimize[:test4].get_js_object_id
-        js_object_id_for_class_name = "RubyOptimize#{js_object_id.gsub('-', '')}"
-        sampled_version = ruby_optimize_init(:test4).scan(/#{js_object_id_for_class_name}\(\'[a-z0-9]+\'/).first.split("'").last
-        processed_init_script_test4 = init_script_test4.gsub('xxxxxxxxxxxx', js_object_id_for_class_name)
-        processed_init_script_test4.gsub!('yyyyyyyyyyyy', js_object_id)
-        processed_init_script_test4.gsub!('zzzzzzzzzzzz', sampled_version)
-        expect(@ruby_optimize[:test4].init_script).to eq(processed_init_script_test4)
         # TEST4 WRAP
         expect do
           ruby_optimize_wrap(:v444, :test4) do
             'hello'
           end
         end.to raise_error('RubyOptimize - version must be one of the available versions: :v444')
-        wrapped = ruby_optimize_wrap(:v5, :test4) do
+        @ruby_optimize[:test4].set_version(:v5)
+        expect(ruby_optimize_wrap(:v5, :test4) do
           'hello'
-        end
-        random_div_id = wrapped.scan(/div id=\"[a-z0-9\-]+\"/).first.split('"').last
-        expect(wrapped).to eq(fake_wrapped('v5', random_div_id, js_object_id))
-        wrapped = ruby_optimize_wrap(:v4, :test4, version_for_crawler: true) do
+        end).to eq('hello')
+        @ruby_optimize[:test4].set_version(:other)
+        expect(ruby_optimize_wrap(:v5, :test4) do
           'hello'
-        end
-        random_div_id = wrapped.scan(/div id=\"[a-z0-9\-]+\"/).first.split('"').last
-        expect(wrapped).to eq(fake_wrapped('v4', random_div_id, js_object_id))
+        end).to eq('')
+        @ruby_optimize[:test4].set_version(:v4)
+        expect(ruby_optimize_wrap(:v4, :test4, version_for_crawler: true) do
+          'hello'
+        end).to eq('hello')
+        @ruby_optimize[:test4].set_version(:other)
+        expect(ruby_optimize_wrap(:v4, :test4, version_for_crawler: true) do
+          'hello'
+        end).to eq('')
       end
     end
 
@@ -661,10 +449,6 @@ RSpec.describe AbTestHandler, type: :model do
       it 'correctly sets up the object, empty init scripts, empty wrap' do
         ruby_optimize [ :v1, :v2, :v3 ]
         ruby_optimize [ :old, :new ], scope: :test, version_for_crawler: :old
-        # INIT SCRIPT GENERIC
-        expect do
-          ruby_optimize_init(:anotherscope)
-        end.to raise_error('RubyOptimize - scope not found: :anotherscope')
         # WRAP GENERIC
         expect do
           ruby_optimize_wrap(:v1, :anotherscope) do
@@ -689,9 +473,6 @@ RSpec.describe AbTestHandler, type: :model do
         def (@ruby_optimize[:default]).get_is_crawler
           is_crawler
         end
-        def (@ruby_optimize[:default]).get_js_object_id
-          js_object_id
-        end
         def (@ruby_optimize[:default]).get_versions
           versions
         end
@@ -700,9 +481,6 @@ RSpec.describe AbTestHandler, type: :model do
         expect(@ruby_optimize[:default].get_version_for_crawler).to eq(nil)
         expect(@ruby_optimize[:default].get_is_crawler).to eq(true)
         expect(@ruby_optimize[:default].get_versions.sort).to eq([:v1, :v2, :v3])
-        # DEFAULT INIT SCRIPT
-        expect(ruby_optimize_init(:default)).to eq('')
-        expect(ruby_optimize_init).to eq('')
         # DEFAULT WRAP
         expect(ruby_optimize_wrap(:xxx) do
           'hello'
@@ -738,9 +516,6 @@ RSpec.describe AbTestHandler, type: :model do
         def (@ruby_optimize[:test]).get_is_crawler
           is_crawler
         end
-        def (@ruby_optimize[:test]).get_js_object_id
-          js_object_id
-        end
         def (@ruby_optimize[:test]).get_versions
           versions
         end
@@ -749,9 +524,6 @@ RSpec.describe AbTestHandler, type: :model do
         expect(@ruby_optimize[:test].get_version_for_crawler).to eq(:old)
         expect(@ruby_optimize[:test].get_is_crawler).to eq(true)
         expect(@ruby_optimize[:test].get_versions.sort).to eq([:new, :old])
-        # TEST INIT SCRIPT
-        expect(ruby_optimize_init(:test)).to eq('')
-        expect(ruby_optimize_init).to eq('')
         # TEST WRAP
         expect(ruby_optimize_wrap(:xxx, :test) do
           'hello'
