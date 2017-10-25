@@ -39,7 +39,7 @@ module RubyOptimize
       return '' if !version.present?
       id = SecureRandom.uuid
       wrapped = <<-HTML
-        <div id="#{id}">
+        <div id="#{id}" style="display:none">
           #{html}
         </div>
         <script>
@@ -98,8 +98,11 @@ module RubyOptimize
             }
 
             this.handle = function(version, id) {
-              if (version === v) return;
               var el = document.getElementById(id);
+              if (version === v) {
+                el.style.removeProperty('display');
+                return;
+              }
               el.parentNode.removeChild(el);
             };
           };
