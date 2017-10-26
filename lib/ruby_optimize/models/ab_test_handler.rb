@@ -67,6 +67,6 @@ module RubyOptimize
       raise "RubyOptimize - version_for_crawler must be one of the available versions: #{version_for_crawler.inspect}" if !version_for_crawler.nil? && !versions.include?(version_for_crawler)
     end
 
-    attr_reader :cookie_expiration, :cookie_name, :version_for_crawler, :version, :is_crawler, :versions
+    attr_reader :cookie_expiration, :cookie_name, :version_for_crawler, :is_crawler, :version, :versions
   end
 end
