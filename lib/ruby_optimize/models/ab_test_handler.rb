@@ -35,15 +35,11 @@ module RubyOptimize
       end
     end
 
-    def wrap(html, a_version, for_crawler)
+    def show?(a_version, for_crawler)
       raise "RubyOptimize - for_crawler must be a boolean: #{for_crawler.inspect}" if for_crawler != !!for_crawler
-      if is_crawler
-        return html.html_safe if for_crawler
-        return html.html_safe if !version_for_crawler.nil? && a_version == version_for_crawler
-        return ''
-      end
+      return for_crawler || (!version_for_crawler.nil? && a_version == version_for_crawler) if is_crawler
       raise "RubyOptimize - version must be one of the available versions: #{a_version.inspect}" if !a_version.nil? && !versions.include?(a_version)
-      (a_version === version) ? html.html_safe : ''
+      a_version == version
     end
 
     private
