@@ -16,10 +16,10 @@ module RubyOptimize
       @versions = some_versions
       validate_versions
       validate_scope(scope)
-      @cookie_expiration = (a_cookie_expiration || 180.days).to_i
-      validate_cookie_expiration
       @cookie_name = "ruby-optimize-cookie-#{scope}"
       @is_crawler = !CRAWLER.match(agent).nil?
+      @cookie_expiration = (a_cookie_expiration || 180.days).to_i
+      validate_cookie_expiration
       @version_for_crawler = a_version_for_crawler
       validate_version_for_crawler
       return if is_crawler
@@ -55,12 +55,12 @@ module RubyOptimize
       end
     end
 
-    def validate_cookie_expiration
-      raise "RubyOptimize - cookie_expiration needs to be an integer greater than zero: #{cookie_expiration.inspect}" if cookie_expiration <= 0
-    end
-
     def validate_scope(scope)
       raise "RubyOptimize - scope needs to be an alphanumeric symbol: #{scope.inspect}" if !scope.is_a?(Symbol) || ALPHANUMERIC_STRING.match(scope.to_s).nil?
+    end
+
+    def validate_cookie_expiration
+      raise "RubyOptimize - cookie_expiration needs to be an integer greater than zero: #{cookie_expiration.inspect}" if cookie_expiration <= 0
     end
 
     def validate_version_for_crawler
