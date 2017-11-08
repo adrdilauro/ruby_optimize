@@ -1,5 +1,3 @@
-To know more about RubyOptimize look at the [full documentation](https://github.com/adrdilauro/ruby_optimize/wiki/Full-documentation).
-
 # Features
 
 1. Set up an A/B test with a very **simple** and **descriptive code** (the gem consists of just three methods)
@@ -7,7 +5,6 @@ To know more about RubyOptimize look at the [full documentation](https://github.
 3. You can test **multiple versions** with changes as complicated as you need, while still keeping the code clean and understandable
 4. Effortlessly set up **multiple A/B tests** that don't clash with each other (remembering of course to ensure that results of the tests are kept separated)
 5. Very easy to select a special version for crawlers, so you don't affect your SEO while you are running the test
-6. The gem is safe and super tested (https://github.com/adrdilauro/ruby_optimize/blob/master/spec/ruby_optimize_spec.rb)
 
 # Usage
 
@@ -24,16 +21,13 @@ def initialize_ab_test
   ruby_optimize [ :v1, :v2, :v3 ] # Declare the names of all the versions you are going to test
 end
 ```
+..or in the specific `.erb` file where you need to set up the test, if the test is localized in only one place
 
-#### (2) - Render the script that reads / writes the cookie
-```html
-<head>
-  <%= ruby_optimize_init %>
-  ...
-</head>
+```ruby
+<% ruby_optimize [ :v1, :v2, :v3 ] %>
 ```
 
-#### (3) - Wrap blocks of HTML that will be rendered depending on the version
+#### (2) - Wrap blocks of HTML that will be rendered depending on the version
 ```html
 <%= ruby_optimize_wrap(:v1) do %>
   <div class="for-version-1">
@@ -48,26 +42,6 @@ end
 <% end %>
 ```
 
-# How it works
-
-When you call `ruby_optimize_init` in your `.erb` files, you will render a simple synchronous script that
-
-- tries to read the cookie relative to your A/B test
-- if the cookie is not present, extract a random version among the ones you defined, and store it in a cookie
-- save the version in an internal javascript object that will be used across the page
-
-When you wrap a block of HTML inside `ruby_optimize_wrap`, passing a specific version, the block will be wrapped inside a `<div>` with a generated random id, and after the block it will be appended a synchronous `<script>` tag that looks like this:
-
-```html
-<script>
-  window.rubyOptimizerObject.keepOrRemoveHtmlBlock('[random id]', '[version]');
-</script>
-```
-
-If the version passed doesn't match with the version that has been stored on the top of the page, then the block is removed. This happens before the page is fully rendered, so there isn't any chance to get page flickering.
-
-The synchronous scripts are really simple and don't slow down page rendering time.
-
 
 # Why RubyOptimize is good for complex A/B tests
 
@@ -76,6 +50,7 @@ You can create several different versions of the same page, as complex and as bi
 You can easily span your tests across different pages reading the same cookie, with no additional code, RubyOptimize does all the work for you.
 
 You can maintain as many different A/B tests you want without risking them to clash.
+
 
 # Why RubyOptimize is good for small A/B tests as well
 
@@ -88,3 +63,94 @@ Now, usually Google Optimize tag loads fast, but you cannot always rely on exter
 This means that, even if your server has responded in 150 milliseconds, your user won't be able to see anything in the page until the 4 seconds have expired.
 
 Are you sure you want to risk this? With RubyOptimize you can set up a simple A/B test easily and cleanly directly in the code, this means that you can get rid of the hide-page tag, and let Google Optimize focus only on data collection.
+
+
+# How it works
+
+### Initialization of a test
+
+When you call `ruby_optimize` in your controller or `.erb` file, RubyOptimize instantiates a new `AbTestHandler` object scoped for that test, and append it to a global variable that collects all the tests; this way there is a specific object that handles each separate test, and your tests won't clash.
+
+Each `AbTestHandler` object saves data to its own cookie: the first thing it does when it gets initialised is verifying if the cookie is already present: if it's not present, it extracts a random version among the ones you defined.
+
+### Wrapping a block of HTML
+
+When you wrap a block of HTML inside `ruby_optimize_wrap`, the helper method finds the corresponding `AbTestHandler` object and asks it whether the block has to be rendered. The `AbTestHandler` object takes it decision based on which version has stored internally, and on whether the request comes from a crawler.
+
+
+# Examples of configuration
+
+
+### 1 - Simplest configuration
+
+```ruby
+ruby_optimize([ :v1, :v2, :v3 ]
+```
+
+A test is initialized containing three different versions, each having one third of probability to be extracted.
+
+
+### 2 - Initialize more than one test
+
+```ruby
+ruby_optimize([ :small, :large ]
+ruby_optimize([ :old, :new ], scope: :first_test
+ruby_optimize([ :v1, :v2, :v3 ], scope: :second_test
+```
+
+To set up more than one test, you have to specify a `:scope`, which has to be an alphanumeric symbol. You can't define more than one test associated to the same scope.
+
+When you don't specify the `:scope` option, it automatically gets the value of `:default`.
+
+
+### 3 - Initialization options
+
+```ruby
+ruby_optimize [ :v1, :v2 ], domain: 'www.example.com' # Domain defaults to :all
+```
+```ruby
+ruby_optimize [ :v1, :v2 ], cookie_expiration: 1.month # Cookie expiration can be either an integer or a Time instance
+```
+```ruby
+ruby_optimize [ :old, :new ], version_for_crawler: :old # Version :old will always be shown to crawlers, without need to specify it case per case
+```
+```ruby
+ruby_optimize [ :old, :new ], session_cookie: true # The cookie is stored in Rails session
+```
+```ruby
+ruby_optimize [ :old, :new ], session_cookie: true, cookie_expiration: 1.month # If you use :session_cookie together with :cookie_expiration, the cookie is stored in session and :cookie_expiration is ignored
+```
+
+You can wrap a version in a two elements array, inserting an integer or a float as second element. This number will be used to do a weighted extraction.
+
+To calculate all the weights, RubyOptimize sums the weights you explicitly specified, and divides equally the remaining versions. If the sum of the weights you specified is over 100, you'll get an error.
+
+```ruby
+ruby_optimize [ [:v1, 40], :v2, :v3 ]  # 40% - 30% - 30%
+ruby_optimize [ [:v1, 90], [:v2, 9], :v3 ]  # 90% - 9% - 1%
+ruby_optimize [ [:v1, 50], [:v2, 55], :v3 ]  # Exception raised
+ruby_optimize [ [:v1, 40], [:v2, 30], [:v3, 35] ]  # Exception raised
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+- Try to read the cookie relative to your A/B test
+- If the cookie is not present, extract a random version among the ones you defined, and store it in a cookie
+- Save the version in an internal javascript object that will be used across the page
+
+If the version passed doesn't match with the version that has been stored on the top of the page, then the block is removed. This happens before the page is fully rendered, so there isn't any chance to get page flickering.
+
+The synchronous scripts are really simple and don't slow down page rendering time.
+
+
