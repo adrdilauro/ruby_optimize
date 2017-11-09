@@ -132,25 +132,57 @@ ruby_optimize [ [:v1, 50], [:v2, 55], :v3 ]  # Exception raised
 ruby_optimize [ [:v1, 40], [:v2, 30], [:v3, 35] ]  # Exception raised
 ```
 
+An example that combines more options
 
+```ruby
+ruby_optimize [ :v1, :v2, [:v3, 40] ], scope: :navbar_test, session_cookie: true, domain: 'test.example.com'
+```
 
+### Wrap options
 
+```ruby
+<%= ruby_optimize_wrap(:v1) do %>
+  <!-- Rendered if visit doesn't come from a crawler and the version extracted is :v1 -->
+  <!-- Rendered if visit comes from a crawler and you have previously set up :v1 as global version for crawlers -->
+  <div>Hello World</div>
+<% end %>
+```
 
+Scope is `:default`. The version passed needs to be present and be one of the ones defined on `:default` scope
 
+```ruby
+<%= ruby_optimize_wrap(:v1, :some_scope) do %>
+  <!-- Rendered if visit doesn't come from a crawler and the version extracted is :v1 -->
+  <!-- Rendered if visit comes from a crawler and you have previously set up :v1 as global version for crawlers under scope :some_scope -->
+  <div>Hello World</div>
+<% end %>
+```
 
+The only difference is that we explicitly selected scope `:some_scope`, so `:v1` must match one version defined in that scope rather than in `:default`
 
+An exception is raised if the selected scope doesn't correspond to any `AbTestHandler` previously initialized.
 
+```ruby
+<%= ruby_optimize_wrap(:v1, :some_scope, version_for_crawler: true) do %>
+  <!-- Rendered if visit doesn't come from a crawler and the version extracted is :v1 -->
+  <!-- Rendered if visit comes from a crawler, regardless of how you configured the test -->
+  <div>Hello World</div>
+<% end %>
 
+<%= ruby_optimize_wrap(:v1, version_for_crawler: true) do %>
+  <!-- Rendered if visit doesn't come from a crawler and the version extracted is :v1 -->
+  <!-- Rendered if visit comes from a crawler, regardless of how you configured the test -->
+  <div>Hello World</div>
+<% end %>
+```
 
+The final example covers the case when you want to prepare a special version that is ONLY shown to crawlers
 
+```ruby
+<%= ruby_optimize_wrap(version_for_crawler: true) do %>
+  <!-- Rendered only if visit comes from a crawler -->
+  <div>Hello Crawler</div>
+<% end %>
+```
 
-
-- Try to read the cookie relative to your A/B test
-- If the cookie is not present, extract a random version among the ones you defined, and store it in a cookie
-- Save the version in an internal javascript object that will be used across the page
-
-If the version passed doesn't match with the version that has been stored on the top of the page, then the block is removed. This happens before the page is fully rendered, so there isn't any chance to get page flickering.
-
-The synchronous scripts are really simple and don't slow down page rendering time.
-
-
+This is the only case in which it's acceptable not to set a version. Scope is not necessary because this HTML doesn't affect any of our tests

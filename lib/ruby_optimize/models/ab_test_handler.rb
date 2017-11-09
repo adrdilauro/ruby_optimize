@@ -38,7 +38,7 @@ module RubyOptimize
     def show?(a_version, for_crawler)
       raise "RubyOptimize - for_crawler must be a boolean: #{for_crawler.inspect}" if for_crawler != !!for_crawler
       return for_crawler || (!version_for_crawler.nil? && a_version == version_for_crawler) if is_crawler
-      raise "RubyOptimize - version must be one of the available versions: #{a_version.inspect}" if !a_version.nil? && !versions.include?(a_version)
+      raise "RubyOptimize - version must be one of the available versions: #{a_version.inspect}" if !versions.include?(a_version)
       a_version == version
     end
 
