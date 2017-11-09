@@ -1,6 +1,6 @@
 # Features
 
-1. Set up an A/B test with a very **simple** and **descriptive code** (the gem consists of just three methods)
+1. Set up an A/B test with a very **simple** and **descriptive code** (the gem consists of just two methods)
 2. A/B tests are valid across different pages, using cookies
 3. You can test **multiple versions** with changes as complicated as you need, while still keeping the code clean and understandable
 4. Effortlessly set up **multiple A/B tests** that don't clash with each other (remembering of course to ensure that results of the tests are kept separated)
