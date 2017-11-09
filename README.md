@@ -128,6 +128,8 @@ ruby_optimize [ :old, :new ], session_cookie: true
 ruby_optimize [ :old, :new ], session_cookie: true, cookie_expiration: 1.month
 ```
 
+### Weighted versions
+
 You can wrap a version in a two elements array, inserting an integer or a float as second element. This number will be used to do a weighted extraction.
 
 To calculate all the weights, RubyOptimize sums the weights you explicitly specified, and divides equally the remaining versions. If the sum of the weights you specified is over 100, you'll get an error.
