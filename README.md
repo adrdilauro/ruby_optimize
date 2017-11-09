@@ -106,19 +106,26 @@ When you don't specify the `:scope` option, it automatically gets the value of `
 ### 3 - Initialization options
 
 ```ruby
-ruby_optimize [ :v1, :v2 ], domain: 'www.example.com' # Domain defaults to :all
+# If not specified, domain defaults to :all
+ruby_optimize [ :v1, :v2 ], domain: 'www.example.com'
 ```
 ```ruby
-ruby_optimize [ :v1, :v2 ], cookie_expiration: 1.month # Cookie expiration can be either an integer or a Time instance
+# Cookie expiration can be either an integer or a Time instance
+# If not specified, it defaults to 180 days
+ruby_optimize [ :v1, :v2 ], cookie_expiration: 1.month
 ```
 ```ruby
-ruby_optimize [ :old, :new ], version_for_crawler: :old # Version :old will always be shown to crawlers, without need to specify it case per case
+# Version :old will always be the one shown to crawlers, without need to specify it case per case
+ruby_optimize [ :old, :new ], version_for_crawler: :old
 ```
 ```ruby
-ruby_optimize [ :old, :new ], session_cookie: true # The cookie is stored in Rails session
+# The cookie is stored in Rails session
+ruby_optimize [ :old, :new ], session_cookie: true
 ```
 ```ruby
-ruby_optimize [ :old, :new ], session_cookie: true, cookie_expiration: 1.month # If you use :session_cookie together with :cookie_expiration, the cookie is stored in session and :cookie_expiration is ignored
+# If you use :session_cookie together with :cookie_expiration, the cookie is stored in session and :cookie_expiration is ignored
+# Another option that is ignored if you use :session_cookie is :domain
+ruby_optimize [ :old, :new ], session_cookie: true, cookie_expiration: 1.month
 ```
 
 You can wrap a version in a two elements array, inserting an integer or a float as second element. This number will be used to do a weighted extraction.
