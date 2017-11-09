@@ -23,12 +23,12 @@ end
 ```
 ..or in the specific `.erb` file where you need to set up the test, if the test is localized in only one place
 
-```ruby
+```HTML+ERB
 <% ruby_optimize [ :v1, :v2, :v3 ] %>
 ```
 
 #### (2) - Wrap blocks of HTML that will be rendered depending on the version
-```html
+```HTML+ERB
 <%= ruby_optimize_wrap(:v1) do %>
   <div class="for-version-1">
     ...
@@ -140,7 +140,7 @@ ruby_optimize [ :v1, :v2, [:v3, 40] ], scope: :navbar_test, session_cookie: true
 
 ### Wrap options
 
-```ruby
+```HTML+ERB
 <%= ruby_optimize_wrap(:v1) do %>
   <!-- Rendered if visit doesn't come from a crawler and the version extracted is :v1 -->
   <!-- Rendered if visit comes from a crawler and you have previously set up :v1 as global version for crawlers -->
@@ -150,7 +150,7 @@ ruby_optimize [ :v1, :v2, [:v3, 40] ], scope: :navbar_test, session_cookie: true
 
 Scope is `:default`. The version passed needs to be present and be one of the ones defined on `:default` scope
 
-```ruby
+```HTML+ERB
 <%= ruby_optimize_wrap(:v1, :some_scope) do %>
   <!-- Rendered if visit doesn't come from a crawler and the version extracted is :v1 -->
   <!-- Rendered if visit comes from a crawler and you have previously set up :v1 as global version for crawlers under scope :some_scope -->
@@ -162,7 +162,7 @@ The only difference is that we explicitly selected scope `:some_scope`, so `:v1`
 
 An exception is raised if the selected scope doesn't correspond to any `AbTestHandler` previously initialized.
 
-```ruby
+```HTML+ERB
 <%= ruby_optimize_wrap(:v1, :some_scope, version_for_crawler: true) do %>
   <!-- Rendered if visit doesn't come from a crawler and the version extracted is :v1 -->
   <!-- Rendered if visit comes from a crawler, regardless of how you configured the test -->
@@ -178,7 +178,7 @@ An exception is raised if the selected scope doesn't correspond to any `AbTestHa
 
 The final example covers the case when you want to prepare a special version that is ONLY shown to crawlers
 
-```ruby
+```HTML+ERB
 <%= ruby_optimize_wrap(version_for_crawler: true) do %>
   <!-- Rendered only if visit comes from a crawler -->
   <div>Hello Crawler</div>
