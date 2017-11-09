@@ -69,7 +69,7 @@ Are you sure you want to risk this? With RubyOptimize you can set up a simple A/
 
 ### Initialization of a test
 
-When you call `ruby_optimize` in your controller or `.erb` file, RubyOptimize instantiates a new `AbTestHandler` object scoped for that test, and append it to a global variable that collects all the tests; this way there is a specific object that handles each separate test, and your tests won't clash.
+When you call `ruby_optimize` in your controller or `.erb` file, RubyOptimize instantiates a new `AbTestHandler` object scoped for that test, and appends it to a global variable that collects all the tests; this way there is a specific object that handles each separate test, and your tests won't clash.
 
 Each `AbTestHandler` object saves data to its own cookie: the first thing it does when it gets initialised is verifying if the cookie is already present: if it's not present, it extracts a random version among the ones you defined.
 
