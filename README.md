@@ -128,7 +128,7 @@ ruby_optimize [ :old, :new ], session_cookie: true
 ruby_optimize [ :old, :new ], session_cookie: true, cookie_expiration: 1.month
 ```
 
-### Weighted versions
+### 4 - Weighted versions
 
 You can add a hash of custom weights, associate to some of the versions an integer or a float included between 0 and 100. This number will be used to do a weighted extraction.
 
@@ -148,7 +148,7 @@ An example that combines more options
 ruby_optimize [ :v1, :v2, :v3 ], scope: :navbar_test, session_cookie: true, domain: 'test.example.com', weights: { v3: 40 }
 ```
 
-### Wrap options
+### 5 - Wrap options
 
 ```HTML+ERB
 <%= ruby_optimize_wrap(:v1) do %>
