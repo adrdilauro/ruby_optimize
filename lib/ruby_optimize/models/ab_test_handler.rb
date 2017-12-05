@@ -12,7 +12,7 @@ module RubyOptimize
       'y!j-asr', 'AddThis'
     ].join('|')}/i
 
-    def initialize(cookies, some_versions, scope, agent, domain=nil, a_cookie_expiration=nil, a_version_for_crawler=nil, use_session_cookies=false, custom_weights={})
+    def initialize(cookies, some_versions, scope, agent, domain=nil, a_cookie_expiration=nil, a_version_for_crawler=nil, use_session_cookies=false, custom_weights=nil)
       @versions = some_versions
       validate_versions
       validate_scope(scope)
@@ -26,7 +26,7 @@ module RubyOptimize
       if cookies.has_key?(cookie_name)
         @version = cookies[cookie_name].to_sym
       else
-        @version = extract_random_version(custom_weights)
+        @version = extract_random_version(custom_weights || {})
         cookie_hash = {
           value: version,
           domain: domain || :all,

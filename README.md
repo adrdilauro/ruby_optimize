@@ -130,21 +130,22 @@ ruby_optimize [ :old, :new ], session_cookie: true, cookie_expiration: 1.month
 
 ### Weighted versions
 
-You can wrap a version in a two elements array, inserting an integer or a float as second element. This number will be used to do a weighted extraction.
+You can add a hash of custom weights, associate to some of the versions an integer or a float included between 0 and 100. This number will be used to do a weighted extraction.
 
 To calculate all the weights, RubyOptimize sums the weights you explicitly specified, and divides equally the remaining versions. If the sum of the weights you specified is over 100, you'll get an error.
 
 ```ruby
-ruby_optimize [ [:v1, 40], :v2, :v3 ]  # 40% - 30% - 30%
-ruby_optimize [ [:v1, 90], [:v2, 9], :v3 ]  # 90% - 9% - 1%
-ruby_optimize [ [:v1, 50], [:v2, 55], :v3 ]  # Exception raised
-ruby_optimize [ [:v1, 40], [:v2, 30], [:v3, 35] ]  # Exception raised
+ruby_optimize [ :v1, :v2, :v3 ], weights: { v1: 40 }  # 40% - 30% - 30%
+ruby_optimize [ :v1, :v2, :v3 ], weights: { v1: 90, v2: 9 }  # 90% - 9% - 1%
+ruby_optimize [ :v1, :v2, :v3 ], weights: { v1: 50, v2: 55 }  # Exception raised
+ruby_optimize [ :v1, :v2, :v3 ], weights: { v1: 40, v2: 30, v3: 35 }  # Exception raised
+ruby_optimize [ :v1, :v2, :v3 ], weights: { v1: 40, v6: 45 }  # Exception raised because v6 has not been declared
 ```
 
 An example that combines more options
 
 ```ruby
-ruby_optimize [ :v1, :v2, [:v3, 40] ], scope: :navbar_test, session_cookie: true, domain: 'test.example.com'
+ruby_optimize [ :v1, :v2, :v3 ], scope: :navbar_test, session_cookie: true, domain: 'test.example.com', weights: { v3: 40 }
 ```
 
 ### Wrap options
